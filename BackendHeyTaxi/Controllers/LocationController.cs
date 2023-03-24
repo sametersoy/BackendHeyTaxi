@@ -28,5 +28,16 @@ namespace BackendHeyTaxi.Controllers
             var locations= await (from q in db.locations orderby q.id descending select q).FirstOrDefaultAsync();
             return locations;
         }
+
+        [HttpPost("AddLocation")]
+        public async Task<locations> AddLocation(locations locasion)
+        {
+            DataDbContext db = new DataDbContext();
+            locations tbl = locasion;
+            db.locations.Add(locasion);
+            await db.SaveChangesAsync();
+
+            return tbl;
+        }
     }
 }
