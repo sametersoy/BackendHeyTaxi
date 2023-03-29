@@ -9,11 +9,7 @@ namespace BackendHeyTaxi.Controllers
     [Route("[controller]")]
     public class LocationController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
+      
         private readonly ILogger<LocationController> _logger;
 
         public LocationController(ILogger<LocationController> logger)
