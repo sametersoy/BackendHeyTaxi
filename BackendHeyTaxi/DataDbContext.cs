@@ -38,8 +38,7 @@ namespace MarketBackend
         public string? created_by { get; set; }
         public string? speedaccuracy { get; set; }
         public string? speed { get; set; }
-
-        
+        public int? userid { get; set; }
 
     }
 

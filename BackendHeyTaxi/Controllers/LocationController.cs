@@ -1,3 +1,4 @@
+using BackendHeyTaxi.Validators;
 using MarketBackend;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,17 @@ namespace BackendHeyTaxi.Controllers
         {
             DataDbContext db = new DataDbContext();
             locations tbl = locasion;
-            db.locations.Add(locasion);
-            await db.SaveChangesAsync();
+            var LocationValidator = new LocationValidate();
+
+            var result = LocationValidator.Validate(locasion);
+            if (result.IsValid)
+            {
+               
+                db.locations.Add(locasion);
+                await db.SaveChangesAsync();
+            }
+
+            var errorMessages = result.Errors.Select(x => x.ErrorMessage).ToList();
 
             return tbl;
         }
