@@ -2,6 +2,10 @@ using BackendHeyTaxi.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MarketBackend;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +13,65 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
 
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(option =>
+{
+    //When authenticate make sure you are using
+    //beer scheme, mean anybody who is attempting
+    //to access anything that we are secured
+    //must provide jwt bearer
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //    Mean you are going to challenge according
+    //to the JWT bearer
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+
+
+})
+    .AddJwtBearer(option =>
+    {
+        option.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateAudience = true,
+            ValidateIssuer = true,  //ensure that issuer is valid issuer
+            ValidateLifetime = true,//ensure that token is not expire
+            ClockSkew = TimeSpan.Zero,//is timespan zero,that is used to difference in times b / w two computers
+            ValidIssuer = builder.Configuration["jWTSetting:Issuer"],
+            ValidAudience = builder.Configuration["jWTSetting:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jWTSetting:Key"]))
+        };
+    });
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Backend Taxi",
+        Version = "v1"
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -44,7 +102,10 @@ app.UseCors(builder => builder
                 .SetIsOriginAllowed((host) => true)
                 .AllowCredentials()
             );
+app.UseAuthentication();
+
 app.UseAuthorization();
+
 
 app.MapControllers();
 

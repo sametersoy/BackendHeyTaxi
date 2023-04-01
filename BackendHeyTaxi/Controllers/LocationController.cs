@@ -1,5 +1,6 @@
 using BackendHeyTaxi.Validators;
 using MarketBackend;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
@@ -19,6 +20,7 @@ namespace BackendHeyTaxi.Controllers
         }
 
         [HttpGet("GetLocation")]
+        [Authorize]
         public async Task<locations> GetLocation()
         {
             DataDbContext db = new DataDbContext();

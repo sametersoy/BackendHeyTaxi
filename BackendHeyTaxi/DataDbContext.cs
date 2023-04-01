@@ -8,7 +8,7 @@ namespace MarketBackend
     {
 
         public DbSet<locations> locations { get; set; }
-        public DbSet<prices> prices { get; set; }
+        public DbSet<users> users { get; set; }
         public DbSet<stocks> stocks { get; set; }
         public DbSet<orders> orders { get; set; }
 
@@ -42,16 +42,15 @@ namespace MarketBackend
 
     }
 
-    public class prices
+    public class users
     {
         public int id { get; set; }
-        public int product_id { get; set; }
-        public float price { get; set; }
-        public string? updated_by { get; set; }
-        public DateTime? updated_date { get; set; }
-        public string? created_by { get; set; }
+        public string email { get; set; }
+        public string password { get; set; }
         public DateTime? created_date { get; set; }
-        public int ?kdv { get; set; }
+        public string? created_by { get; set; }
+
+       
 
     }
 
