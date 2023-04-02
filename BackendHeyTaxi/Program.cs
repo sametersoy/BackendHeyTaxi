@@ -36,9 +36,14 @@ builder.Services.AddAuthentication(option =>
             ValidateIssuer = true,  //ensure that issuer is valid issuer
             ValidateLifetime = true,//ensure that token is not expire
             ClockSkew = TimeSpan.Zero,//is timespan zero,that is used to difference in times b / w two computers
+
+
             ValidIssuer = builder.Configuration["jWTSetting:Issuer"],
             ValidAudience = builder.Configuration["jWTSetting:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jWTSetting:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jWTSetting:Key"])),
+            
+            //Refresh token gerekirse lifetimeValidator ile token expires kontrolü yapýlýr
+            //LifetimeValidator = (notBefore, expires, securityToken, validationParameters) => expires != null ? expires > DateTime.UtcNow: false
         };
     });
 
