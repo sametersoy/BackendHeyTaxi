@@ -3,8 +3,10 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using MarketBackend;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +25,6 @@ builder.Services.AddAuthentication(option =>
     //    Mean you are going to challenge according
     //to the JWT bearer
     option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-
 
 })
     .AddJwtBearer(option =>
@@ -87,6 +87,16 @@ var app = builder.Build();
 //    app.UseSwaggerUI();
 //}
 
+//Json exeption 
+app.UseExceptionHandler(a => a.Run(async context =>
+{
+    var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+    var exception = exceptionHandlerPathFeature.Error;
+
+    var result = JsonConvert.SerializeObject(new { error = exception.Message });
+    context.Response.ContentType = "application/json";
+    await context.Response.WriteAsync(result);
+}));
 app.UseSwagger(c =>
 {
     c.RouteTemplate = "swagger/{documentName}/swagger.json";

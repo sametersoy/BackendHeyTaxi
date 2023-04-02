@@ -16,7 +16,7 @@ namespace BackendHeyTaxi.Controllers
     [Route("[controller]")]
     public class AccountController : ControllerBase
     {
-      
+
         private readonly ILogger<AccountController> _logger;
         //private readonly UserManager<UserPofile> userManager;
         //private readonly SignInManager<UserPofile> signInManager;
@@ -32,23 +32,48 @@ namespace BackendHeyTaxi.Controllers
         }
 
         [HttpGet("Login")]
-        public async Task<string> Login(string username, string password)
+        public async Task<string> Login(string email, string password)
         {
             DataDbContext db = new DataDbContext();
-           
 
 
-            return await GenerateToken(username, password);
+
+            return await GenerateToken(email, password);
         }
 
-        [HttpPost("AddLocation")]
-        public async Task<users> AddLocation(users user)
+        [HttpPost("Register")]
+        public async Task<Token> Register(users user)
         {
             DataDbContext db = new DataDbContext();
-            users tbl = user;
-            db.users.Add(tbl);
-            await db.SaveChangesAsync();
-            return tbl;
+
+            var userCheck = await (from q in db.users where q.email == user.email select q).FirstOrDefaultAsync();
+            if (userCheck != null)
+            {
+                throw new Exception("Bu mail adresi ile daha önce kayýt olunmuþ.");
+            }
+            Token t = new Token();
+            var userValidator = new UserValidate();
+            var result = userValidator.Validate(user);
+            if (result.IsValid)
+            {
+                users tbl = user;
+                tbl.created_date = DateTime.UtcNow;
+                db.users.Add(tbl);
+                await db.SaveChangesAsync();
+                string Token = await GenerateToken(user.email, user.password);
+                t.token = Token;
+                return t;
+            }
+            else {
+                throw new InvalidOperationException(result.Errors[0].ErrorMessage);
+            }
+           
+        }
+
+     
+
+        public class Token {
+            public string token { get; set; }
         }
 
         private async Task<string> GenerateToken(string email,string password)
