@@ -35,10 +35,15 @@ namespace BackendHeyTaxi.Controllers
         public async Task<string> Login(string email, string password)
         {
             DataDbContext db = new DataDbContext();
+            var checkUser= await (from q in db.users where q.email == email && q.password == password select q).FirstOrDefaultAsync();
+            if (checkUser != null)
+            {
+                return await GenerateToken(email, password);
+            }
+            else {
+               throw new Exception("Girilen kullanýcý bilgileri yanlýþtýr.");
+            }
 
-
-
-            return await GenerateToken(email, password);
         }
 
         [HttpPost("Register")]
