@@ -32,13 +32,17 @@ namespace BackendHeyTaxi.Controllers
         }
 
         [HttpGet("Login")]
-        public async Task<string> Login(string email, string password)
+        public async Task<Token> Login(string email, string password)
         {
             DataDbContext db = new DataDbContext();
-            var checkUser= await (from q in db.users where q.email == email && q.password == password select q).FirstOrDefaultAsync();
+            Token t = new Token();
+
+            var checkUser = await (from q in db.users where q.email == email && q.password == password select q).FirstOrDefaultAsync();
             if (checkUser != null)
             {
-                return await GenerateToken(email, password);
+                string Token = await GenerateToken(email, password);
+                t.token = Token;
+                return t;
             }
             else {
                throw new Exception("Girilen kullanýcý bilgileri yanlýþtýr.");
@@ -85,14 +89,18 @@ namespace BackendHeyTaxi.Controllers
         {
             var securitykey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jWTSetting:Key"]));
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
-
+            IdentityOptions _options = new IdentityOptions();
+            DataDbContext db = new DataDbContext();
+            var user = await (from q in db.users where q.email == email select q).FirstOrDefaultAsync();
 
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, email),
+                new Claim("Id", user.id.ToString()),
+                new Claim("Email", user.email.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, configuration["jWTSetting:Issuer"]),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email,email),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
             };
           
 
