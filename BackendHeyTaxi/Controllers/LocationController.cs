@@ -74,13 +74,27 @@ namespace BackendHeyTaxi.Controllers
             locations tbl = locasion;
 
             int intUser =Convert.ToInt32(userId);
-            var checkLocation = await (from q in db.locations where q.userid == intUser select q).FirstOrDefaultAsync();
+            var checkLocation =await (from q in db.locations where q.userid == intUser select q).FirstOrDefaultAsync();
             if (checkLocation != null)
             {
-                checkLocation = locasion;
+                //checkLocation = locasion;
+                checkLocation.accuracy = locasion.accuracy;
+                checkLocation.altitudeaccuracy = locasion.altitudeaccuracy;
+                checkLocation.speedaccuracy = locasion.speedaccuracy;
+                checkLocation.altitude = locasion.altitude;
+                checkLocation.timestamp = locasion.timestamp;
+                checkLocation.longitude = locasion.longitude;
+                checkLocation.latitude = locasion.latitude;
+                checkLocation.heading = locasion.heading;
+                //checkLocation.type = locasion.type;
+                checkLocation.speed = locasion.speed;
+                checkLocation.floor = locasion.floor;
+                checkLocation.frommockprovider = locasion.frommockprovider;
                 checkLocation.userid= intUser;
                 checkLocation.created_date = DateTime.UtcNow;
-                checkLocation.created_by = "test";
+                checkLocation.created_by = "test2";
+                await db.SaveChangesAsync();
+
             }
             else {
                 var LocationValidator = new LocationValidate();
@@ -90,11 +104,12 @@ namespace BackendHeyTaxi.Controllers
                 {
                     tbl.userid = Convert.ToInt32(userId);
                     db.locations.Add(tbl);
+                    await db.SaveChangesAsync();
+
                 }
                 var errorMessages = result.Errors.Select(x => x.ErrorMessage).ToList();
             }
-            await db.SaveChangesAsync();
-            Console.WriteLine("new locations : " + locasion.altitude.ToString() + locasion.longitude.ToString());
+            Console.WriteLine("new locations altitude : " + locasion.latitude.ToString() + "new locations longitude : " + locasion.longitude.ToString());
 
 
 
