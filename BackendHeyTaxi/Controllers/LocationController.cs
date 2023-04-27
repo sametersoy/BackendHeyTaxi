@@ -2,6 +2,7 @@ using BackendHeyTaxi.Validators;
 using MarketBackend;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Security.Claims;
@@ -34,25 +35,32 @@ namespace BackendHeyTaxi.Controllers
             }
             DataDbContext db = new DataDbContext();
             var locations= await (from q in db.locations orderby q.id descending select q).FirstOrDefaultAsync();
-
             return locations;
         }
 
         [HttpGet("GetAllLocation")]
         [Authorize]
-        public async Task<locations[]> GetAllLocation()
+        public async Task<locations[]> GetAllLocation(string type)
         {
+            int userId = 0;
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
             {
                 IEnumerable<Claim> claims = identity.Claims;
                 // or
-                string userId = identity.FindFirst("Id").Value;
+                userId = Convert.ToInt32( identity.FindFirst("Id").Value);
 
             }
             DataDbContext db = new DataDbContext();
-            var locations = await (from q in db.locations orderby q.id descending select q).ToArrayAsync();
+            locations[] locations;
+            var user_location = await (from q in db.locations where q.userid == userId select q).FirstOrDefaultAsync();
+            if (type == "T")
+                locations = await (from q in db.locations where q.type == "T" orderby q.id descending select q).ToArrayAsync();
+            else
+                locations = await (from q in db.locations where q.type == "Y" orderby q.id descending select q).ToArrayAsync();
 
+
+            locations.Prepend(user_location);
             return locations;
         }
 
@@ -93,6 +101,8 @@ namespace BackendHeyTaxi.Controllers
                 checkLocation.userid= intUser;
                 checkLocation.created_date = DateTime.UtcNow;
                 checkLocation.created_by = "test2";
+                checkLocation.type = locasion.type;
+
                 await db.SaveChangesAsync();
 
             }
