@@ -108,7 +108,7 @@ namespace BackendHeyTaxi.Controllers
                 issuer: configuration["jWTSetting:Issuer"],
                 audience: configuration["jWTSetting:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(Convert.ToInt32(configuration["jWTSetting:Duration"])),
+                expires: DateTime.UtcNow.AddMonths(Convert.ToInt32(configuration["jWTSetting:Duration"])),
                 signingCredentials: credentials
             );
 

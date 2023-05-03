@@ -34,7 +34,7 @@ builder.Services.AddAuthentication(option =>
             ValidateIssuerSigningKey = true,
             ValidateAudience = true,
             ValidateIssuer = true,  //ensure that issuer is valid issuer
-            ValidateLifetime = true,//ensure that token is not expire
+            //ValidateLifetime = true,//ensure that token is not expire
             ClockSkew = TimeSpan.Zero,//is timespan zero,that is used to difference in times b / w two computers
 
 

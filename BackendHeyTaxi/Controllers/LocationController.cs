@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Linq;
 using System.Security.Claims;
 
 namespace BackendHeyTaxi.Controllers
@@ -15,6 +16,7 @@ namespace BackendHeyTaxi.Controllers
     {
       
         private readonly ILogger<LocationController> _logger;
+        DataDbContext db = new DataDbContext();
 
         public LocationController(ILogger<LocationController> logger)
         {
@@ -51,17 +53,12 @@ namespace BackendHeyTaxi.Controllers
                 userId = Convert.ToInt32( identity.FindFirst("Id").Value);
 
             }
-            DataDbContext db = new DataDbContext();
-            locations[] locations;
-            var user_location = await (from q in db.locations where q.userid == userId select q).FirstOrDefaultAsync();
-            if (type == "T")
-                locations = await (from q in db.locations where q.type == "T" orderby q.id descending select q).ToArrayAsync();
-            else
-                locations = await (from q in db.locations where q.type == "Y" orderby q.id descending select q).ToArrayAsync();
-
-
-            locations.Prepend(user_location);
-            return locations;
+            
+            var locations_type = await (from q in db.locations where q.type == (type == "Y" ? "T" : "Y") || q.userid == userId select q).ToArrayAsync();
+    
+        
+            Console.WriteLine("GetAll Run" + " > " + locations_type.Count().ToString());
+            return locations_type;
         }
 
         [HttpPost("AddLocation")]
