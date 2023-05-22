@@ -51,7 +51,7 @@ namespace BackendHeyTaxi.Controllers
                 IEnumerable<Claim> claims = identity.Claims;
                 // or
                 userId = Convert.ToInt32( identity.FindFirst("Id").Value);
-
+                // tset
             }
             
             var locations_type = await (from q in db.locations where q.type == (type == "Y" ? "T" : "Y") || q.userid == userId select q).ToArrayAsync();
