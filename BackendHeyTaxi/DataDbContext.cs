@@ -19,7 +19,7 @@ namespace MarketBackend
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseNpgsql("Host=192.168.1.61;Username=postgres;Password=23054q;Database=TaxiDB");
+                => optionsBuilder.UseNpgsql("Host=192.168.1.155;Username=postgres;Password=23054q;Database=TaxiDB");
     }
 
     public class locations
